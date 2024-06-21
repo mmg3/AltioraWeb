@@ -1,20 +1,14 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { useRouter, useParams } from 'next/navigation'
 
-interface ClientProps {
-  params: {
-    edit: string;
-  };
-}
+export default function ClientEditPage() {
+  const router = useRouter();
+  const { edit } = useParams();
 
-export default function ClientEditPage(props: ClientProps) {
-  const { edit } = props.params;
-  console.log(edit);
   if (edit !== undefined) {
-    const [{ Id, FirstName, LastName, Identification, Email }, setClient] =
-      useState([]);
+    const [client, setClient] = useState([]);
 
-    const [id, setId] = useState("");
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [identification, setIdentification] = useState("");
@@ -27,11 +21,10 @@ export default function ClientEditPage(props: ClientProps) {
       const result = await data.json();
       setClient(result.entity);
 
-      setId(Id);
-      setFirstName(FirstName);
-      setLastName(LastName);
-      setIdentification(Identification);
-      setEmail(Email);
+      setFirstName(client.FirstName);
+      setLastName(client.LastName);
+      setIdentification(client.Identification);
+      setEmail(client.Email);
     };
 
     const saveClientById = async () => {
@@ -39,18 +32,25 @@ export default function ClientEditPage(props: ClientProps) {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          Id: id,
-          FirstName: firstName,
-          LastName: lastName,
-          Identification: identification,
-          Email: email,
+          Id: client.Id,
+          FirstName: firstName || client.FirstName,
+          LastName: lastName || client.LastName,
+          Identification: identification || client.Identification,
+          Email: email || client.Email,
           IsDeleted: false,
         }),
       };
-
-      //const data = await fetch(`https://localhost:7239/Client`, requestOptions);
-      console.log(requestOptions);
+      
+      const data = await fetch(`https://localhost:7239/Client`, requestOptions);
+      
+      if(data !== undefined){
+        router.replace('/clients');
+      }
     };
+
+    const cancelEditClient = () => {
+      router.replace('/clients');
+    }
 
     useEffect(() => {
       getClientById();
@@ -61,14 +61,17 @@ export default function ClientEditPage(props: ClientProps) {
         <h3>Editar cliente</h3>
         <hr />
         <label>Id:</label>
-        <input type="text" className="align-right" disabled value={id}></input>
+        <input type="text"
+        className="align-right"
+        disabled
+        defaultValue={client.Id}></input>
         <br />
 
         <label>Nombre:</label>
         <input
           type="text"
-          className="align-right"
-          value={firstName || ""}
+          className="align-left"
+          defaultValue={client.FirstName}
           onChange={(e) => setFirstName(e.target.value)}
         ></input>
         <br />
@@ -76,8 +79,8 @@ export default function ClientEditPage(props: ClientProps) {
         <label>Apelido:</label>
         <input
           type="text"
-          className="align-right"
-          value={lastName}
+          className="align-left"
+          defaultValue={client.LastName}
           onChange={(e) => setLastName(e.target.value)}
         ></input>
         <br />
@@ -85,8 +88,8 @@ export default function ClientEditPage(props: ClientProps) {
         <label>Identificación:</label>
         <input
           type="text"
-          className="align-right"
-          defaultValue={identification}
+          className="align-left"
+          defaultValue={client.Identification}
           onChange={(e) => setIdentification(e.target.value)}
         ></input>
         <br />
@@ -94,12 +97,14 @@ export default function ClientEditPage(props: ClientProps) {
         <label>Email:</label>
         <input
           type="text"
-          className="align-right"
-          value={email}
+          className="align-left"
+          defaultValue={client.Email}
           onChange={(e) => setEmail(e.target.value)}
         ></input>
         <br />
         <button onClick={(e) => saveClientById()}>Guardar</button>
+        <br />
+        <button onClick={(e) => cancelEditClient()}>Cancelar</button>
       </div>
     );
   } else {
