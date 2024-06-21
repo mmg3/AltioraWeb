@@ -105,9 +105,18 @@ a {
     color-scheme: dark;
   }
 }
-.no-bullet{
+.no-bullet {
   list-style-type: none;
   padding: 0.5rem;
   margin: 0.5rem;
   border-bottom: 0.5px solid white;
+}
+.align-left {
+  text-align: left;
+}
+.align-right {
+  text-align: right;
+}
+.align-center {
+  text-align: center;
 }
